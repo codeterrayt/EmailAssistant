@@ -1,25 +1,66 @@
 import smtplib
 from email.message import EmailMessage
+import speech_recognition as sr
+import pyttsx3
 
-server = smtplib.SMTP("smtp.gmail.com" , 587)
+listener = sr.Recognizer()
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
+server = smtplib.SMTP("smtp.gmail.com", 587)
 server.starttls()
+server_login_mail = "youremail@gmail.com"
+server_login_password = "yourpassword13@$"
+server.login(server_login_mail, server_login_password)
 
 
-server_login_mail = "Your Email id "
-server_login_password = "Your Password"
+def say(text):
+    engine.say(text)
+    engine.runAndWait()
 
-server.login(server_login_mail,server_login_password)
+
+say("hello sir, how can i help you? myself email assistant")
 
 
-email = EmailMessage()
+def assistant_listener():
+    try:
+        with sr.Microphone() as source:
+            print("Listening...")
+            voice = listener.listen(source)
+            info = listener.recognize_google(voice, language="en-in").lower()
+            return info
 
-user_input_mail = input("Please Enter Email id ")
-subject = input("Please Enter Your Subject")
-message = input("Please Enter Message here")
+    except:
+        return "no"
 
-email['From'] = server_login_mail
-email['To'] = user_input_mail
-email['Subject'] = subject
-email.set_content(message)
-server.send_message(email)
 
+def send_email(rec, subject, message):
+    email = EmailMessage()
+    email['From'] = server_login_mail
+    email['To'] = rec
+    email['Subject'] = subject
+    email.set_content(message)
+    server.send_message(email)
+
+
+contact = {
+    "google": "google@gmail.com",
+    "youtube": "youtube@gmail.com"
+}
+
+
+def whattodo():
+    listen_me = assistant_listener()
+    if "assistant" in listen_me:
+        if "write mail" in listen_me:
+            say("To whom you want to send mail?")
+            email = contact[assistant_listener()]
+            say("What you want to be subject?")
+            subject = assistant_listener()
+            say("what should be the message?")
+            message = assistant_listener()
+            send_email(email, subject, message)
+            say("Email Send Successfully")
+
+while True:
+    whattodo()
