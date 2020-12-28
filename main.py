@@ -54,7 +54,12 @@ def whattodo():
     if "assistant" in listen_me:
         if "write mail" in listen_me:
             say("To whom you want to send mail?")
-            email = contact[assistant_listener()]
+            try:
+                user = assistant_listener()
+                email = contact[user]
+            except:
+                say(user+" not found in your contacts!")
+                return 0
             say("What you want to be subject?")
             subject = assistant_listener()
             say("what should be the message?")
